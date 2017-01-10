@@ -23,14 +23,17 @@ func NewConfigurationCommands() cli.Command {
 func get() cli.Command {
 	return cli.Command{
 		Name: "get",
-		Usage: "get blogName - returns all data that has been configured with application",
+		Usage: "{{ application name }} - returns all data that has been configured with application",
 		Action: func(ctx *cli.Context) error {
 			blogName := ctx.Args().First()
+			if blogName == "" {
+				return cli.ShowCommandHelp(ctx, "get")
+			}
 
-			configurationService := service.GetConfiguration(blogName)
-			fmt.Printf("%+v\n", configurationService);
+			configuration, err := service.GetConfiguration(blogName)
+			fmt.Println(configuration.ToString())
 
-			return nil
+			return err
 		},
 	}
 }
@@ -60,7 +63,7 @@ func set() cli.Command {
 			fmt.Fscanln(reader, &username)
 
 			fmt.Print("Database Password: ")
-			fmt.Fscanln(reader, &password)
+			fmt.Fscanln(reader, &password) // TODO Replace with gopass
 
 			fmt.Print("Database HostName: ")
 			fmt.Fscanln(reader, &hostName)
