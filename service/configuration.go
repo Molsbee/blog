@@ -8,6 +8,7 @@ import (
 
 type Configuration struct {
 	Name     string                `json:"name"`
+	Port     string                `json:"port"`
 	Database databaseConfiguration `json:"database"`
 }
 
@@ -19,7 +20,7 @@ type databaseConfiguration struct {
 
 type databaseConnection struct {
 	HostName string `json:"hostName"`
-	Port     int    `json:"port"`
+	Port     string `json:"port"`
 }
 
 // TODO: Encrypt data to hide credentials
@@ -35,25 +36,23 @@ func (cs *Configuration) Save() error {
 }
 
 func (cs *Configuration) ToString() string {
-	return fmt.Sprintf(
-		"name: %s\n"+
-			"database:\n"+
-			"\tusername: %s\n"+
-			"\tpassword: %s\n"+
-			"\tconnection:\n"+
-			"\t\thostName: %s\n"+
-			"\t\tport: %d\n", cs.Name, cs.Database.Username, cs.Database.Password, cs.Database.Connection.HostName, cs.Database.Connection.Port)
+	return fmt.Sprintf("name: %s\n port: %s\n database:\n"+
+		"\tusername: %s\n\tpassword: %s\n"+
+		"\tconnection:\n\t\thostName: %s\n\t\tport: %d\n",
+		cs.Name, cs.Port, cs.Database.Username, cs.Database.Password,
+		cs.Database.Connection.HostName, cs.Database.Connection.Port)
 }
 
-func NewConfiguration(name, username, password, hostName string, port int) *Configuration {
+func NewConfiguration(name, username, password, hostName, applicationPort, databasePort string) *Configuration {
 	return &Configuration{
 		Name: name,
+		Port: applicationPort,
 		Database: databaseConfiguration{
 			Username: username,
 			Password: password,
 			Connection: databaseConnection{
 				HostName: hostName,
-				Port:     port,
+				Port:     databasePort,
 			},
 		},
 	}

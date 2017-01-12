@@ -1,17 +1,16 @@
 package command
 
 import (
-	"github.com/urfave/cli"
-	"fmt"
 	"bufio"
-	"os"
+	"fmt"
 	"github.com/molsbee/blog/service"
-	"strconv"
+	"github.com/urfave/cli"
+	"os"
 )
 
 func NewConfigurationCommands() cli.Command {
 	return cli.Command{
-		Name: "configuration",
+		Name:  "configuration",
 		Usage: "Configure application with endpoints/credentials",
 		Subcommands: []cli.Command{
 			set(),
@@ -22,7 +21,7 @@ func NewConfigurationCommands() cli.Command {
 
 func get() cli.Command {
 	return cli.Command{
-		Name: "get",
+		Name:  "get",
 		Usage: "{{ application name }} - returns all data that has been configured with application",
 		Action: func(ctx *cli.Context) error {
 			blogName := ctx.Args().First()
@@ -38,26 +37,28 @@ func get() cli.Command {
 	}
 }
 
-
 func set() cli.Command {
 	return cli.Command{
-		Name: "set",
-		Usage: "Calling function will start a set of command prompts to facilitate proper configuration",
+		Name:        "set",
+		Usage:       "Calling function will start a set of command prompts to facilitate proper configuration",
 		Description: "Provides the ability to configure application with appropriate dependencies.",
 		Action: func(ctx *cli.Context) error {
 			var (
-				blogName string
-				username string
-				password string
-				hostName string
-				portString string
+				blogName        string
+				applicationPort string
+				username        string
+				password        string
+				hostName        string
+				databasePort    string
 			)
 
 			reader := bufio.NewReader(os.Stdin)
 
-
 			fmt.Print("Blog name: ")
 			fmt.Fscanln(reader, &blogName)
+
+			fmt.Print("Application Port: ")
+			fmt.Fscanln(reader, &applicationPort)
 
 			fmt.Print("Database Username: ")
 			fmt.Fscanln(reader, &username)
@@ -69,14 +70,10 @@ func set() cli.Command {
 			fmt.Fscanln(reader, &hostName)
 
 			fmt.Print("Database Port: ")
-			fmt.Fscanln(reader, &portString)
+			fmt.Fscanln(reader, &databasePort)
 
-			fmt.Printf("Blog name: %s username: %s password: %s hostName: %s port: %s\n", blogName, username, password, hostName, portString)
-			port, err := strconv.Atoi(portString)
-			if err != nil {
-				return err
-			}
-			return service.NewConfiguration(blogName, username, password, hostName, port).Save();
+			fmt.Printf("Blog name: %s port: %s username: %s password: %s hostName: %s port: %s\n", blogName, applicationPort, username, password, hostName, databasePort)
+			return service.NewConfiguration(blogName, username, password, hostName, applicationPort, databasePort).Save()
 		},
 	}
 }
