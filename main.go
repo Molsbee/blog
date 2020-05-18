@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	db, err := gorm.Open("mysql", "root:blog-development@blog_mysql-local-development_1:33060/blog?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "root:blog-development@blog_mysql-local-development_1:3306/blog?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		log.Panicf("failed to open connection to database - %s", err)
 	}
