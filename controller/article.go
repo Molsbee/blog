@@ -19,16 +19,25 @@ func NewArticleController(articleService *service.ArticleService) *articleContro
 func (ac *articleController) Create(context *gin.Context) {
 	articleRequest, err := parseArticleRequest(context)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, model.ApiErrorResponse{
+		context.JSON(http.StatusBadRequest, model.ApiErrorResponse{
 			Message: "unable to parse request",
 		})
 		return
 	}
-	ac.articleService.Create(articleRequest)
+
+	if err := ac.articleService.Create(articleRequest); err != nil {
+		context.JSON(http.StatusInternalServerError, model.ApiErrorResponse{
+			Message: err.Error(),
+		})
+	}
 }
 
 func (ac *articleController) ListArticles(context *gin.Context) {
-	articles := ac.articleService.List()
+	articles, err := ac.articleService.List()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, err)
+	}
+
 	context.JSON(200, articles)
 }
 
@@ -39,7 +48,15 @@ func (ac *articleController) GetArticle(context *gin.Context) {
 		return
 	}
 
-	context.JSON(200, ac.articleService.Get(articleID))
+	article, err := ac.articleService.Get(articleID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, model.ApiErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	context.JSON(200, article)
 }
 
 func (ac *articleController) UpdateArticle(context *gin.Context) {
@@ -51,7 +68,7 @@ func (ac *articleController) UpdateArticle(context *gin.Context) {
 
 	articleRequest, err := parseArticleRequest(context)
 	if err != nil {
-		context.JSON(500, model.ApiErrorResponse{
+		context.JSON(http.StatusBadRequest, model.ApiErrorResponse{
 			Message: "unable to parse request",
 		})
 		return
