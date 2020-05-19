@@ -60,7 +60,7 @@ func (ac *articleController) UpdateArticle(context *gin.Context) {
 }
 
 func parseArticleID(context *gin.Context) (articleID int, errorResponse *model.ApiErrorResponse) {
-	articleID, err := strconv.Atoi(context.Query("articleID"))
+	articleID, err := strconv.Atoi(context.Param("articleID"))
 	if err != nil {
 		errorResponse = &model.ApiErrorResponse{
 			Message: "invalid article id provided",

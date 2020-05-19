@@ -1,13 +1,19 @@
 version: '3'
 services:
+  web-server:
+    container_name: blog
+    build: .
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    command: ["./wait-for-it.sh", "blog_mysql:3306", "--", "sh", "/go/bin/blog"]
+    restart: always
   mysql:
+    container_name: blog_mysql
     image: mysql:8.0.17
     environment:
       MYSQL_ROOT_PASSWORD: blog-development
       MYSQL_DATABASE: blog
     ports:
       - "3306:3306"
-  web-server:
-    build: .
-    ports:
-      - "8080:8080"

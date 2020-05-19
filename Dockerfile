@@ -1,16 +1,16 @@
 # Build Stage
-FROM golang:1.12
+FROM golang:1.12 as build-env
 
-ENV GO111MODULE=on
-
-RUN mkdir -p /go/src/github.com/Molsbee/blog
-COPY go.mod /go/src/github.com/Molsbee/blog
-COPY go.sum /go/src/github.com/Molsbee/blog
+RUN mkdir /app
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
 RUN go mod download
 
-COPY . /go/src/github.com/Molsbee/blog
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o blog
 
-RUN go install github.com/Molsbee/blog
-
+FROM scratch
+COPY --from=build-env /app/blog /go/bin/blog
 EXPOSE 8080
-ENTRYPOINT /go/bin/blog
+ENTRYPOINT ["/go/bin/blog"]
