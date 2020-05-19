@@ -11,6 +11,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o blog
 
 FROM scratch
-COPY --from=build-env /app/blog /go/bin/blog
+COPY --from=build-env /app/database-migrations /database-migrations
+COPY --from=build-env /app/blog /blog
 EXPOSE 8080
-ENTRYPOINT ["/go/bin/blog"]
+ENTRYPOINT ["/blog"]
