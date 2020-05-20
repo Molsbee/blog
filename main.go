@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/Molsbee/blog/controller"
 	"github.com/Molsbee/blog/service"
 	"github.com/gin-gonic/gin"
@@ -12,10 +13,15 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
-	db, err := gorm.Open("postgres", "postgres://blog:blog-development@localhost:5432/blog?sslmode=disable")
+	dbHostname := getEnvOrDefault("BLOG_DATABASE_HOSTNAME", "localhost")
+	dbUsername := getEnvOrDefault("BLOG_DATABASE_USERNAME", "blog")
+	dbPassword := getEnvOrDefault("BLOG_DATABASE_PASSWORD", "blog-development")
+
+	db, err := gorm.Open("postgres", fmt.Sprintf("postgres://%s:%s@%s:5432/blog?sslmode=disable", dbUsername, dbPassword, dbHostname))
 	if err != nil {
 		log.Panicf("failed to open connection to database - %s", err)
 	}
@@ -43,6 +49,15 @@ func main() {
 
 	// serve web pages
 	router.Run(":8080")
+}
+
+func getEnvOrDefault(environmentVariable string, defaultValue string) string {
+	variable := os.Getenv(environmentVariable)
+	if len(variable) == 0 {
+		return defaultValue
+	}
+
+	return variable
 }
 
 func runDatabaseMigration(db *sql.DB) {

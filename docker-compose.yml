@@ -4,16 +4,21 @@ services:
     container_name: blog
     build: .
     depends_on:
-      - mysql
+      - postgres
     ports:
       - "8080:8080"
-    command: ["./wait-for-it.sh", "blog_mysql:3306", "--", "sh", "/go/bin/blog"]
-    restart: always
-  mysql:
-    container_name: blog_mysql
-    image: mysql:8.0.17
     environment:
-      MYSQL_ROOT_PASSWORD: blog-development
-      MYSQL_DATABASE: blog
+      BLOG_DATABASE_HOSTNAME: blog_postgres
+      BLOG_DATABASE_USERNAME: ${DB_USERNAME}
+      BLOG_DATABASE_PASSWORD: ${DB_PASSWORD}
+    command: ["./wait-for-it.sh", "blog_postgres:5432", "--", "sh", "/go/bin/blog"]
+    restart: always
+  postgres:
+    container_name: blog_postgres
+    image: postgres:12
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: blog
     ports:
-      - "3306:3306"
+      - "5432:5432"
