@@ -20,12 +20,12 @@ func NewArticleController(articleService *service.ArticleService) *articleContro
 func (ac *articleController) Create(context *gin.Context) {
 	articleRequest, err := parseArticleRequest(context)
 	if err != nil {
-		context.JSON(err.StatusCode(), err)
+		context.JSON(err.StatusCode(), err.Details())
 		return
 	}
 
 	if err := ac.articleService.Create(articleRequest); err != nil {
-		context.JSON(err.StatusCode(), err)
+		context.JSON(err.StatusCode(), err.Details())
 	}
 }
 
@@ -41,13 +41,13 @@ func (ac *articleController) ListArticles(context *gin.Context) {
 func (ac *articleController) GetArticle(context *gin.Context) {
 	articleID, errorResponse := parseArticleID(context)
 	if errorResponse != nil {
-		context.JSON(http.StatusBadRequest, errorResponse)
+		context.JSON(http.StatusBadRequest, errorResponse.Details())
 		return
 	}
 
 	article, apiError := ac.articleService.Get(articleID)
 	if apiError != nil {
-		context.JSON(apiError.StatusCode(), apiError)
+		context.JSON(apiError.StatusCode(), apiError.Details())
 		return
 	}
 
@@ -57,23 +57,23 @@ func (ac *articleController) GetArticle(context *gin.Context) {
 func (ac *articleController) UpdateArticle(context *gin.Context) {
 	articleID, errorResponse := parseArticleID(context)
 	if errorResponse != nil {
-		context.JSON(http.StatusBadRequest, errorResponse)
+		context.JSON(http.StatusBadRequest, errorResponse.Details())
 		return
 	}
 
 	articleRequest, err := parseArticleRequest(context)
 	if err != nil {
-		context.JSON(err.StatusCode(), err)
+		context.JSON(err.StatusCode(), err.Details())
 		return
 	}
 
 	apiError := ac.articleService.Update(articleID, articleRequest)
 	if apiError != nil {
-		context.JSON(apiError.StatusCode(), apiError)
+		context.JSON(apiError.StatusCode(), apiError.Details())
 	}
 }
 
-func parseArticleID(context *gin.Context) (articleID int, apiError model.ApiError) {
+func parseArticleID(context *gin.Context) (articleID int, apiError model.ApplicationError) {
 	articleID, conversionErr := strconv.Atoi(context.Param("articleID"))
 	if conversionErr != nil {
 		apiError = model.ErrorBuilder().
@@ -84,7 +84,7 @@ func parseArticleID(context *gin.Context) (articleID int, apiError model.ApiErro
 	return
 }
 
-func parseArticleRequest(context *gin.Context) (articleRequest model.ArticleRequest, err model.ApiError) {
+func parseArticleRequest(context *gin.Context) (articleRequest model.ArticleRequest, err model.ApplicationError) {
 	bindError := context.BindJSON(&articleRequest)
 	if bindError != nil {
 		log.Printf("failed to bind json to article request - %s\n", bindError)

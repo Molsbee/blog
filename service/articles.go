@@ -17,7 +17,7 @@ func NewArticleService(db *gorm.DB) *ArticleService {
 	}
 }
 
-func (as *ArticleService) Create(request model.ArticleRequest) model.ApiError {
+func (as *ArticleService) Create(request model.ArticleRequest) model.ApplicationError {
 	return as.articleRepository.Save(model.Article{
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
@@ -28,7 +28,7 @@ func (as *ArticleService) Create(request model.ArticleRequest) model.ApiError {
 	})
 }
 
-func (as *ArticleService) List() ([]map[string]interface{}, model.ApiError) {
+func (as *ArticleService) List() ([]map[string]interface{}, model.ApplicationError) {
 	articles, err := as.articleRepository.FindAll()
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (as *ArticleService) List() ([]map[string]interface{}, model.ApiError) {
 	return articlesResponse, nil
 }
 
-func (as *ArticleService) Get(articleID int) (*model.ArticleResponse, model.ApiError) {
+func (as *ArticleService) Get(articleID int) (*model.ArticleResponse, model.ApplicationError) {
 	art, err := as.articleRepository.FindByID(articleID)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (as *ArticleService) Get(articleID int) (*model.ArticleResponse, model.ApiE
 	}, nil
 }
 
-func (as *ArticleService) Update(articleID int, request model.ArticleRequest) model.ApiError {
+func (as *ArticleService) Update(articleID int, request model.ArticleRequest) model.ApplicationError {
 	article, err := as.articleRepository.FindByID(articleID)
 	if err != nil {
 		return err

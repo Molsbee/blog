@@ -8,9 +8,9 @@ import (
 )
 
 type ArticleRepository interface {
-	Save(article model.Article) model.ApiError
-	FindAll() ([]model.Article, model.ApiError)
-	FindByID(id int) (model.Article, model.ApiError)
+	Save(article model.Article) model.ApplicationError
+	FindAll() ([]model.Article, model.ApplicationError)
+	FindByID(id int) (model.Article, model.ApplicationError)
 }
 
 type articleRepository struct {
@@ -23,7 +23,7 @@ func NewArticleRepository(db *gorm.DB) ArticleRepository {
 	}
 }
 
-func (ar *articleRepository) Save(article model.Article) (err model.ApiError) {
+func (ar *articleRepository) Save(article model.Article) (err model.ApplicationError) {
 	if dbErr := ar.DB.Create(&article).Error; dbErr != nil {
 		log.Printf("unable to store article - %s\n", dbErr)
 		err = model.ErrorBuilder().
@@ -35,7 +35,7 @@ func (ar *articleRepository) Save(article model.Article) (err model.ApiError) {
 	return
 }
 
-func (ar *articleRepository) FindAll() (articles []model.Article, err model.ApiError) {
+func (ar *articleRepository) FindAll() (articles []model.Article, err model.ApplicationError) {
 	dbErr := ar.DB.Find(&articles).Error
 	if gorm.IsRecordNotFoundError(dbErr) {
 		err = model.ErrorBuilder().StatusCode(http.StatusNotFound).Build()
@@ -50,9 +50,9 @@ func (ar *articleRepository) FindAll() (articles []model.Article, err model.ApiE
 	return
 }
 
-func (ar *articleRepository) FindByID(id int) (article model.Article, err model.ApiError) {
+func (ar *articleRepository) FindByID(id int) (article model.Article, err model.ApplicationError) {
 	dbErr := ar.DB.Where("id = ?", id).Find(&article).Error
-	if dbErr == gorm.ErrRecordNotFound {
+	if gorm.IsRecordNotFoundError(dbErr) {
 		err = model.ErrorBuilder().StatusCode(http.StatusNotFound).Build()
 	} else if dbErr != nil {
 		log.Printf("failed to retrieve article - %s\n", dbErr)

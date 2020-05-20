@@ -1,15 +1,29 @@
 package model
 
-type ApiError interface {
+import "strings"
+
+type ApplicationError interface {
 	Error() string
 	StatusCode() int
 	Details() map[string]interface{}
 }
 
-type apiError struct {
+type ApiError struct {
 	S int                    `json:"-"`
 	M string                 `json:"error,omitempty"`
 	D map[string]interface{} `json:"details,omitempty"`
+}
+
+func (a ApiError) Error() string {
+	return a.M
+}
+
+func (a ApiError) StatusCode() int {
+	return a.S
+}
+
+func (a ApiError) Details() map[string]interface{} {
+	return a.D
 }
 
 type apiErrorBuilder struct {
@@ -19,7 +33,9 @@ type apiErrorBuilder struct {
 }
 
 func ErrorBuilder() apiErrorBuilder {
-	return apiErrorBuilder{}
+	return apiErrorBuilder{
+		details: make(map[string]interface{}),
+	}
 }
 
 func (a apiErrorBuilder) StatusCode(statusCode int) apiErrorBuilder {
@@ -29,30 +45,18 @@ func (a apiErrorBuilder) StatusCode(statusCode int) apiErrorBuilder {
 
 func (a apiErrorBuilder) Message(message string) apiErrorBuilder {
 	a.message = message
+	return a.AddDetail("message", message)
+}
+
+func (a apiErrorBuilder) AddDetail(key string, value interface{}) apiErrorBuilder {
+	a.details[strings.ToLower(key)] = value
 	return a
 }
 
-func (a apiErrorBuilder) Details(details map[string]interface{}) apiErrorBuilder {
-	a.details = details
-	return a
-}
-
-func (a apiErrorBuilder) Build() ApiError {
-	return apiError{
+func (a apiErrorBuilder) Build() ApplicationError {
+	return ApiError{
 		S: a.statusCode,
 		M: a.message,
 		D: a.details,
 	}
-}
-
-func (a apiError) Error() string {
-	return a.M
-}
-
-func (a apiError) StatusCode() int {
-	return a.S
-}
-
-func (a apiError) Details() map[string]interface{} {
-	return a.D
 }
