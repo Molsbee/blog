@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	db, err := gorm.Open("postgres", "postgres://blog:blog-development@localhost:5432/blog")
+	db, err := gorm.Open("postgres", "postgres://blog:blog-development@localhost:5432/blog?sslmode=disable")
 	if err != nil {
 		log.Panicf("failed to open connection to database - %s", err)
 	}
