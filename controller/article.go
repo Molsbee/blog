@@ -4,6 +4,7 @@ import (
 	"github.com/Molsbee/blog/model"
 	"github.com/Molsbee/blog/service"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -19,16 +20,12 @@ func NewArticleController(articleService *service.ArticleService) *articleContro
 func (ac *articleController) Create(context *gin.Context) {
 	articleRequest, err := parseArticleRequest(context)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, model.ApiErrorResponse{
-			Message: "unable to parse request",
-		})
+		context.JSON(err.StatusCode(), err)
 		return
 	}
 
 	if err := ac.articleService.Create(articleRequest); err != nil {
-		context.JSON(http.StatusInternalServerError, model.ApiErrorResponse{
-			Message: err.Error(),
-		})
+		context.JSON(err.StatusCode(), err)
 	}
 }
 
@@ -48,11 +45,9 @@ func (ac *articleController) GetArticle(context *gin.Context) {
 		return
 	}
 
-	article, err := ac.articleService.Get(articleID)
-	if err != nil {
-		context.JSON(http.StatusInternalServerError, model.ApiErrorResponse{
-			Message: err.Error(),
-		})
+	article, apiError := ac.articleService.Get(articleID)
+	if apiError != nil {
+		context.JSON(apiError.StatusCode(), apiError)
 		return
 	}
 
@@ -68,25 +63,36 @@ func (ac *articleController) UpdateArticle(context *gin.Context) {
 
 	articleRequest, err := parseArticleRequest(context)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, model.ApiErrorResponse{
-			Message: "unable to parse request",
-		})
+		context.JSON(err.StatusCode(), err)
 		return
 	}
-	ac.articleService.Update(articleID, articleRequest)
+
+	apiError := ac.articleService.Update(articleID, articleRequest)
+	if apiError != nil {
+		context.JSON(apiError.StatusCode(), apiError)
+	}
 }
 
-func parseArticleID(context *gin.Context) (articleID int, errorResponse *model.ApiErrorResponse) {
-	articleID, err := strconv.Atoi(context.Param("articleID"))
-	if err != nil {
-		errorResponse = &model.ApiErrorResponse{
-			Message: "invalid article id provided",
-		}
+func parseArticleID(context *gin.Context) (articleID int, apiError model.ApiError) {
+	articleID, conversionErr := strconv.Atoi(context.Param("articleID"))
+	if conversionErr != nil {
+		apiError = model.ErrorBuilder().
+			StatusCode(http.StatusBadRequest).
+			Message("invalid article id provided").
+			Build()
 	}
 	return
 }
 
-func parseArticleRequest(context *gin.Context) (articleRequest model.ArticleRequest, err error) {
-	err = context.BindJSON(&articleRequest)
+func parseArticleRequest(context *gin.Context) (articleRequest model.ArticleRequest, err model.ApiError) {
+	bindError := context.BindJSON(&articleRequest)
+	if bindError != nil {
+		log.Printf("failed to bind json to article request - %s\n", bindError)
+		err = model.ErrorBuilder().
+			StatusCode(http.StatusBadRequest).
+			Message("unable to parse request body").
+			Build()
+	}
+
 	return
 }

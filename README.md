@@ -6,7 +6,7 @@ It will be backed by PostgreSQL and deployed to Heroku.
 
 #### Database Setup (Not mounting volume at this point)
 ```shell script
-docker run --name blog-postgres -e POSTGRES_USER=blog -e POSTGRES_PASSWORD=blog-development -e POSTGRES_DB=blog -p "5432:5432" -d postgres:12
+docker run --name postgres -e POSTGRES_USER=blog -e POSTGRES_PASSWORD=blog-development -e POSTGRES_DB=blog -p "5432:5432" -d postgres:12
 ```
 
 #### Database Migration (MacOS) - github.com/golang-migrate/migrate/tree/master/cmd/migrate
