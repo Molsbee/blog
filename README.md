@@ -2,8 +2,6 @@
 I am designing this as a single tenant blogging solution that will meet my needs.
 It will be backed by PostgreSQL and deployed to Heroku.
 
-
-
 ## Local Development not using docker-compose
 
 #### Database Setup (Not mounting volume at this point)
@@ -19,4 +17,9 @@ brew install golang-migrate
 Create Migration (assumes you are running in project directory)
 ```shell script
 migrate create -ext sql -dir ./database-migrations -seq create_articles_table
+```
+
+Notes
+```shell script
+vue create frontend
 ```

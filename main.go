@@ -11,6 +11,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -25,6 +26,13 @@ func main() {
 	articleController := controller.NewArticleController(articleService)
 
 	router := gin.Default()
+	// Serve Static Content
+	router.StaticFS("/css", http.Dir("./frontend/dist/css"))
+	router.StaticFS("/img", http.Dir("./frontend/dist/img"))
+	router.StaticFS("/js", http.Dir("./frontend/dist/js"))
+	router.StaticFile("/favicon.ico", "./frontend/dist/index.html")
+	router.StaticFile("/", "./frontend/dist/index.html")
+
 	articles := router.Group("/articles")
 	{
 		articles.POST("", articleController.Create)
