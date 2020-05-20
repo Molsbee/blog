@@ -6,15 +6,15 @@ import (
 	"github.com/Molsbee/blog/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-migrate/migrate"
-	"github.com/golang-migrate/migrate/database/mysql"
+	"github.com/golang-migrate/migrate/database/postgres"
 	_ "github.com/golang-migrate/migrate/source/file"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"log"
 )
 
 func main() {
-	db, err := gorm.Open("mysql", "root:blog-development@blog_mysql-local-development_1:3306/blog?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("postgres", "postgres://blog:blog-development@localhost:5432/blog")
 	if err != nil {
 		log.Panicf("failed to open connection to database - %s", err)
 	}
@@ -38,12 +38,12 @@ func main() {
 }
 
 func runDatabaseMigration(db *sql.DB) {
-	driver, err := mysql.WithInstance(db, &mysql.Config{})
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
 		log.Panic(err)
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://database-migrations", "mysql", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://database-migrations", "postgres", driver)
 	if err != nil {
 		log.Fatal(err)
 	}
