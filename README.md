@@ -19,7 +19,13 @@ Create Migration (assumes you are running in project directory)
 migrate create -ext sql -dir ./database-migrations -seq create_articles_table
 ```
 
-Notes
+General Notes
+```shell script
+docker build -t blog .
+docker run --name blog -d blog
+```
+
+Stood up vue by using cli.
 ```shell script
 vue create frontend
 ```

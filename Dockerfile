@@ -1,6 +1,14 @@
 # Build Stage
 FROM golang:1.12 as build-env
 
+RUN curl https://deb.nodesource.com/setup_12.x | bash
+RUN curl https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+RUN set -xe && \
+    apt-get update >/dev/null && \
+    apt-get -y install nodejs yarn
+
 RUN mkdir /app
 WORKDIR /app
 COPY go.mod .
