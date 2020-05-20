@@ -3,13 +3,12 @@ package service
 import (
 	"github.com/Molsbee/blog/model"
 	"github.com/Molsbee/blog/repository"
-	"github.com/Molsbee/blog/repository/database_model"
 	"github.com/jinzhu/gorm"
 	"time"
 )
 
 type ArticleService struct {
-	articleRepository *repository.ArticleRepository
+	articleRepository repository.ArticleRepository
 }
 
 func NewArticleService(db *gorm.DB) *ArticleService {
@@ -19,7 +18,7 @@ func NewArticleService(db *gorm.DB) *ArticleService {
 }
 
 func (as *ArticleService) Create(request model.ArticleRequest) error {
-	return as.articleRepository.Save(database_model.Article{
+	return as.articleRepository.Save(model.Article{
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		Published: request.Published,
