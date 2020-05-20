@@ -25,7 +25,9 @@ docker build -t blog .
 docker run --name blog -d blog
 ```
 
-Stood up vue by using cli.
+Vue Setup Take so far
 ```shell script
 vue create frontend
+vue add router
+yarn --cwd ./frontend/ build
 ```
