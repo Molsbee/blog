@@ -32,6 +32,19 @@ func main() {
 	articleController := controller.NewArticleController(articleService)
 
 	router := gin.Default()
+	// Setup CORS Headers
+	router.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "*")
+		c.Header("Access-Control-Allow-Headers", "*")
+		c.Header("Content-Type", "application/json")
+		if c.Request.Method != "OPTIONS" {
+			c.Next()
+		} else {
+			c.AbortWithStatus(http.StatusOK)
+		}
+	})
+
 	// Serve Static Content
 	router.StaticFS("/css", http.Dir("./frontend/dist/css"))
 	router.StaticFS("/img", http.Dir("./frontend/dist/img"))

@@ -19,7 +19,13 @@ Create Migration (assumes you are running in project directory)
 migrate create -ext sql -dir ./database-migrations -seq create_articles_table
 ```
 
-General Notes
+General Notes 
+Running Go Locally
+```shell script
+yarn --cwd ./frontend/ build && go run main.go
+```
+
+Docker
 ```shell script
 docker build -t blog .
 docker run --name blog -d blog
@@ -29,5 +35,7 @@ Vue Setup Take so far
 ```shell script
 vue create frontend
 vue add router
+vue add vuetify
+yarn add axios
 yarn --cwd ./frontend/ build
 ```
