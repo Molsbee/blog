@@ -1,8 +1,10 @@
+import '@babel/polyfill'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import vuetify from './plugins/vuetify';
 import App from './App.vue'
 
-Vue.config.productionTip = false
+Vue.config.productionTip = process.env.NODE_ENV == 'production'
 Vue.use(VueRouter)
 
 const routes = [
@@ -23,8 +25,11 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+export default router
 
 new Vue({
   router,
-  render: h => h(App)
+  vuetify,
+  render: h => h(App),
+  created () {this.$vuetify.theme.dark = true}
 }).$mount('#app')
