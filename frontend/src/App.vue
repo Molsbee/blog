@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar app>
+    <v-app-bar app fixed>
       <v-toolbar-title>William Molsbee</v-toolbar-title>
       <v-spacer></v-spacer>
       <!-- TODO: Implement search and improve search feature -->

@@ -41,6 +41,7 @@ func (as *ArticleService) List() ([]map[string]interface{}, model.ApplicationErr
 			"title":       article.Title,
 			"author":      article.Author,
 			"description": article.Description(),
+			"createdDate": article.CreatedAt,
 		}
 	}
 

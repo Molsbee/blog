@@ -1,17 +1,15 @@
 <template>
   <div class="home">
     <div v-if="loading">Loading...</div>
-    <div v-else v-for="article in articles" v-bind:key="article">
-      <h2>
-        <router-link tag="div" to="/details">{{ article.title }}</router-link>
-      </h2>
-
-      <!-- Figure out -->
-      {{ article.author }}
-      <blockquote>
-        {{ article.description }}
-      </blockquote>
-    </div>
+    <v-list-item v-else v-for="article in articles" v-bind:key="article" :href="'/details/' + article.id" >
+      <v-list-item-content>
+        <div class="overline mb-4">{{ article.createdDate }}</div>
+        <v-list-item-title class="headline mb-1">{{ article.title }}</v-list-item-title>
+        <v-list-item-subtitle>
+          {{article.description}}
+        </v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
   </div>
 </template>
 
