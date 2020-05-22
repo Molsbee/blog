@@ -6,6 +6,7 @@ import (
 	"github.com/Molsbee/blog/controller"
 	"github.com/Molsbee/blog/repository"
 	"github.com/Molsbee/blog/service"
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-migrate/migrate"
 	"github.com/golang-migrate/migrate/database/postgres"
@@ -30,12 +31,26 @@ func main() {
 	runDatabaseMigration(db.DB())
 
 	serviceUserRepo := repository.NewServiceUserRepository(db)
-	apiAuthHandler := getApiAuthHandler(serviceUserRepo)
-	articleService := service.NewArticleService(db)
-	articleController := controller.NewArticleController(articleService)
+	authController := controller.NewAuthController(serviceUserRepo)
 
 	router := gin.Default()
+	router.Use(sessions.Sessions("user_session", sessions.NewCookieStore([]byte("secret"))))
+	router.POST("/login", authController.Login)
+	router.GET("/logout", authController.Logout)
 
+	// Serve UI Static Content
+	router.StaticFS("/css", http.Dir("./frontend/dist/css"))
+	router.StaticFS("/img", http.Dir("./frontend/dist/img"))
+	router.StaticFS("/js", http.Dir("./frontend/dist/js"))
+	router.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
+	router.StaticFile("/", "./frontend/dist/index.html")
+	router.GET("/blog/*subpage", func(c *gin.Context) {
+		c.File("./frontend/dist/index.html")
+	})
+
+	articleService := service.NewArticleService(db)
+	articleController := controller.NewArticleController(articleService)
+	apiAuthHandler := getApiAuthHandler(serviceUserRepo)
 	// Setup CORS Handler and Authorization Handler
 	api := router.Group("/api", corsHandler)
 	articles := api.Group("/articles")
@@ -45,16 +60,6 @@ func main() {
 		articles.POST("", apiAuthHandler, articleController.Create)
 		articles.PUT("/:articleID", apiAuthHandler, articleController.UpdateArticle)
 	}
-
-	// Serve Static Content
-	router.StaticFS("/css", http.Dir("./frontend/dist/css"))
-	router.StaticFS("/img", http.Dir("./frontend/dist/img"))
-	router.StaticFS("/js", http.Dir("./frontend/dist/js"))
-	router.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
-	router.StaticFile("/", "./frontend/dist/index.html")
-	router.GET("/blog/*subpage", func(c *gin.Context) {
-		c.File("./frontend/dist/index.html")
-	})
 
 	// serve web pages
 	router.Run(":8080")
