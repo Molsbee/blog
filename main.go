@@ -32,27 +32,17 @@ func main() {
 	articleController := controller.NewArticleController(articleService)
 
 	router := gin.Default()
-	// Setup CORS Headers
-	router.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "*")
-		c.Header("Access-Control-Allow-Methods", "*")
-		c.Header("Access-Control-Allow-Headers", "*")
-		c.Header("Content-Type", "application/json")
-		if c.Request.Method != "OPTIONS" {
-			c.Next()
-		} else {
-			c.AbortWithStatus(http.StatusOK)
-		}
-	})
 
 	// Serve Static Content
 	router.StaticFS("/css", http.Dir("./frontend/dist/css"))
 	router.StaticFS("/img", http.Dir("./frontend/dist/img"))
 	router.StaticFS("/js", http.Dir("./frontend/dist/js"))
-	router.StaticFile("/favicon.ico", "./frontend/dist/index.html")
+	router.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
 	router.StaticFile("/", "./frontend/dist/index.html")
 
-	articles := router.Group("/articles")
+	// Setup CORS Handler and Authorization Handler
+	api := router.Group("/api", corsHandler)
+	articles := api.Group("/articles")
 	{
 		articles.POST("", articleController.Create)
 		articles.GET("", articleController.ListArticles)
@@ -86,5 +76,17 @@ func runDatabaseMigration(db *sql.DB) {
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatal(err)
+	}
+}
+
+func corsHandler(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "*")
+	c.Header("Access-Control-Allow-Headers", "*")
+	c.Header("Content-Type", "application/json")
+	if c.Request.Method != "OPTIONS" {
+		c.Next()
+	} else {
+		c.AbortWithStatus(http.StatusOK)
 	}
 }

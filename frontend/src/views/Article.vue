@@ -21,7 +21,7 @@
         mounted() {
             console.log(this.$route.params.id);
             axios
-                .get('http://localhost:8080/articles/' + this.$route.params.id)
+                .get('/api/articles/' + this.$route.params.id)
                 .then(response => {
                     this.article = response.data
                 })

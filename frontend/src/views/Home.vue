@@ -26,7 +26,7 @@
     },
     mounted() {
       axios
-              .get('http://localhost:8080/articles')
+              .get('/api/articles')
               .then(response => {
                 this.articles = response.data
               })
