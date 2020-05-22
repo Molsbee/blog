@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/Molsbee/blog/controller"
+	"github.com/Molsbee/blog/handler"
 	"github.com/Molsbee/blog/repository"
 	"github.com/Molsbee/blog/service"
 	"github.com/gin-gonic/contrib/sessions"
@@ -34,6 +35,7 @@ func main() {
 	authController := controller.NewAuthController(serviceUserRepo)
 
 	router := gin.Default()
+	// Setup Cookie Session
 	router.Use(sessions.Sessions("user_session", sessions.NewCookieStore([]byte("secret"))))
 	router.POST("/login", authController.Login)
 	router.GET("/logout", authController.Logout)
@@ -50,9 +52,9 @@ func main() {
 
 	articleService := service.NewArticleService(db)
 	articleController := controller.NewArticleController(articleService)
-	apiAuthHandler := getApiAuthHandler(serviceUserRepo)
+	apiAuthHandler := handler.GetApiAuthHandler(serviceUserRepo)
 	// Setup CORS Handler and Authorization Handler
-	api := router.Group("/api", corsHandler)
+	api := router.Group("/api", handler.CORS)
 	articles := api.Group("/articles")
 	{
 		articles.GET("", articleController.ListArticles)
@@ -87,34 +89,5 @@ func runDatabaseMigration(db *sql.DB) {
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatal(err)
-	}
-}
-
-func getApiAuthHandler(serviceUserRepo repository.ServiceUserRepository) func(c *gin.Context) {
-	return func(c *gin.Context) {
-		username, password, ok := c.Request.BasicAuth()
-		if !ok {
-			c.AbortWithStatus(http.StatusForbidden)
-			return
-		}
-		user := serviceUserRepo.FindByUsernameAndPassword(username, password)
-		if user == nil {
-			c.AbortWithStatus(http.StatusForbidden)
-			return
-		}
-
-		c.Next()
-	}
-}
-
-func corsHandler(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "*")
-	c.Header("Access-Control-Allow-Headers", "*")
-	c.Header("Content-Type", "application/json")
-	if c.Request.Method != "OPTIONS" {
-		c.Next()
-	} else {
-		c.AbortWithStatus(http.StatusOK)
 	}
 }

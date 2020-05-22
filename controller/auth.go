@@ -2,7 +2,7 @@ package controller
 
 import (
 	"github.com/Molsbee/blog/repository"
-	"github.com/gin-gonic/contrib/sessions"
+	"github.com/Molsbee/blog/service"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -20,7 +20,6 @@ func NewAuthController(userRepository repository.ServiceUserRepository) *authCon
 }
 
 func (auth *authController) Login(c *gin.Context) {
-	session := sessions.Default(c)
 	username := c.PostForm("username")
 	password := c.PostForm("password")
 	if strings.Trim(username, " ") == "" || strings.Trim(password, " ") == "" {
@@ -34,8 +33,7 @@ func (auth *authController) Login(c *gin.Context) {
 		return
 	}
 
-	session.Set("user", user.Username)
-	if err := session.Save(); err != nil {
+	if err := service.SaveSessionData(*user, c); err != nil {
 		log.Printf("saving session failed - %s", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save session"})
 		return
@@ -45,17 +43,12 @@ func (auth *authController) Login(c *gin.Context) {
 }
 
 func (auth *authController) Logout(c *gin.Context) {
-	session := sessions.Default(c)
-	user := session.Get("user")
-	if user == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid session token"})
-		return
-	}
-
-	session.Delete("user")
-	if err := session.Save(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save session"})
-		return
+	hasSession := service.HasSession(c)
+	if hasSession {
+		if err := service.DeleteSessionData(c); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save session"})
+			return
+		}
 	}
 
 	c.Status(200)
