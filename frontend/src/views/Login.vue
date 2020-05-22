@@ -27,6 +27,7 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>
+                            <v-card-text v-show="errored" class="error--text">Failed to login user</v-card-text>
                             <v-btn color="primary" @click="submit">Login</v-btn>
                         </v-card-actions>
                     </v-card>
@@ -44,19 +45,27 @@
         data() {
             return {
                 username: "",
-                password: ""
+                password: "",
+                errored: false
             }
         },
         methods: {
             submit: function() {
+                this.errored = false
                 let formData = new FormData()
                 formData.set("username", this.username)
                 formData.set("password", this.password)
                 axios
                     .post("/login", formData)
+                    .then(() => {
+                        console.log("here")
+                        this.$router.push('/')
+                    })
                     .catch(error => {
                         console.log(error)
+                        this.errored = true
                     })
+
             }
         }
     }

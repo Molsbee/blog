@@ -20,6 +20,9 @@
           <v-list-item to="/blog/about">
             <v-list-item-title>About</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/blog/login">
+            <v-list-item-title>Login</v-list-item-title>
+          </v-list-item>
         </v-list>
       </v-menu>
     </v-app-bar>
