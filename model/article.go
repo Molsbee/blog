@@ -24,11 +24,20 @@ func (a Article) Description() string {
 	return a.Content[0:100]
 }
 
+type AbbrArticleResponse struct {
+	ID          int       `json:"id"`
+	Title       string    `json:"title"`
+	Author      string    `json:"author"`
+	AbbrContent string    `json:"abbrContent"`
+	CreatedDate time.Time `json:"createdDate"`
+}
+
 type ArticleResponse struct {
-	ID      int    `json:"id"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
-	Author  string `json:"author"`
+	ID          int       `json:"id"`
+	Title       string    `json:"title"`
+	Author      string    `json:"author"`
+	Content     string    `json:"content"`
+	CreatedDate time.Time `json:"createdDate"`
 }
 
 type ArticleRequest struct {

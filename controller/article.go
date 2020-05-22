@@ -35,7 +35,18 @@ func (ac *articleController) ListArticles(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, err)
 	}
 
-	context.JSON(200, articles)
+	abbreviatedArticleResponse := make([]model.AbbrArticleResponse, len(articles))
+	for i, article := range articles {
+		abbreviatedArticleResponse[i] = model.AbbrArticleResponse{
+			ID:          article.ID,
+			Title:       article.Title,
+			Author:      article.Author,
+			AbbrContent: article.Description(),
+			CreatedDate: article.CreatedAt,
+		}
+	}
+
+	context.JSON(200, abbreviatedArticleResponse)
 }
 
 func (ac *articleController) GetArticle(context *gin.Context) {
@@ -51,7 +62,13 @@ func (ac *articleController) GetArticle(context *gin.Context) {
 		return
 	}
 
-	context.JSON(200, article)
+	context.JSON(200, model.ArticleResponse{
+		ID:          article.ID,
+		Title:       article.Title,
+		Author:      article.Author,
+		Content:     article.Content,
+		CreatedDate: article.CreatedAt,
+	})
 }
 
 func (ac *articleController) UpdateArticle(context *gin.Context) {

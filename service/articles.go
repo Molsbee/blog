@@ -28,38 +28,14 @@ func (as *ArticleService) Create(request model.ArticleRequest) model.Application
 	})
 }
 
-func (as *ArticleService) List() ([]map[string]interface{}, model.ApplicationError) {
-	articles, err := as.articleRepository.FindAll()
-	if err != nil {
-		return nil, err
-	}
-
-	articlesResponse := make([]map[string]interface{}, len(articles))
-	for i, article := range articles {
-		articlesResponse[i] = map[string]interface{}{
-			"id":          article.ID,
-			"title":       article.Title,
-			"author":      article.Author,
-			"description": article.Description(),
-			"createdDate": article.CreatedAt,
-		}
-	}
-
-	return articlesResponse, nil
+func (as *ArticleService) List() (articles []model.Article, err model.ApplicationError) {
+	// Still need to order list so newer articles are first
+	// and add additional support for query params to filter or limit content
+	return as.articleRepository.FindAll()
 }
 
-func (as *ArticleService) Get(articleID int) (*model.ArticleResponse, model.ApplicationError) {
-	art, err := as.articleRepository.FindByID(articleID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.ArticleResponse{
-		ID:      art.ID,
-		Title:   art.Title,
-		Content: art.Content,
-		Author:  art.Author,
-	}, nil
+func (as *ArticleService) Get(articleID int) (article model.Article, err model.ApplicationError) {
+	return as.articleRepository.FindByID(articleID)
 }
 
 func (as *ArticleService) Update(articleID int, request model.ArticleRequest) model.ApplicationError {
