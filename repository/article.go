@@ -14,17 +14,17 @@ type ArticleRepository interface {
 }
 
 type articleRepository struct {
-	DB *gorm.DB
+	db *gorm.DB
 }
 
 func NewArticleRepository(db *gorm.DB) ArticleRepository {
 	return &articleRepository{
-		DB: db,
+		db: db,
 	}
 }
 
 func (ar *articleRepository) Save(article model.Article) (err model.ApplicationError) {
-	if dbErr := ar.DB.Create(&article).Error; dbErr != nil {
+	if dbErr := ar.db.Create(&article).Error; dbErr != nil {
 		log.Printf("unable to store article - %s\n", dbErr)
 		err = model.ErrorBuilder().
 			StatusCode(http.StatusInternalServerError).
@@ -36,7 +36,7 @@ func (ar *articleRepository) Save(article model.Article) (err model.ApplicationE
 }
 
 func (ar *articleRepository) FindAll() (articles []model.Article, err model.ApplicationError) {
-	dbErr := ar.DB.Find(&articles).Error
+	dbErr := ar.db.Find(&articles).Error
 	if gorm.IsRecordNotFoundError(dbErr) {
 		err = model.ErrorBuilder().StatusCode(http.StatusNotFound).Build()
 	} else if dbErr != nil {
@@ -51,7 +51,7 @@ func (ar *articleRepository) FindAll() (articles []model.Article, err model.Appl
 }
 
 func (ar *articleRepository) FindByID(id int) (article model.Article, err model.ApplicationError) {
-	dbErr := ar.DB.Where("id = ?", id).Find(&article).Error
+	dbErr := ar.db.Where("id = ?", id).Find(&article).Error
 	if gorm.IsRecordNotFoundError(dbErr) {
 		err = model.ErrorBuilder().StatusCode(http.StatusNotFound).Build()
 	} else if dbErr != nil {

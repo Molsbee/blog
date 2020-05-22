@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/Molsbee/blog/controller"
+	"github.com/Molsbee/blog/repository"
 	"github.com/Molsbee/blog/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-migrate/migrate"
@@ -28,6 +29,8 @@ func main() {
 	defer db.Close()
 	runDatabaseMigration(db.DB())
 
+	serviceUserRepo := repository.NewServiceUserRepository(db)
+	apiAuthHandler := getApiAuthHandler(serviceUserRepo)
 	articleService := service.NewArticleService(db)
 	articleController := controller.NewArticleController(articleService)
 
@@ -37,10 +40,10 @@ func main() {
 	api := router.Group("/api", corsHandler)
 	articles := api.Group("/articles")
 	{
-		articles.POST("", articleController.Create)
 		articles.GET("", articleController.ListArticles)
 		articles.GET("/:articleID", articleController.GetArticle)
-		articles.PUT("/:articleID", articleController.UpdateArticle)
+		articles.POST("", apiAuthHandler, articleController.Create)
+		articles.PUT("/:articleID", apiAuthHandler, articleController.UpdateArticle)
 	}
 
 	// Serve Static Content
@@ -79,6 +82,23 @@ func runDatabaseMigration(db *sql.DB) {
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		log.Fatal(err)
+	}
+}
+
+func getApiAuthHandler(serviceUserRepo repository.ServiceUserRepository) func(c *gin.Context) {
+	return func(c *gin.Context) {
+		username, password, ok := c.Request.BasicAuth()
+		if !ok {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		}
+		user := serviceUserRepo.FindByUsernameAndPassword(username, password)
+		if user == nil {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		}
+
+		c.Next()
 	}
 }
 
