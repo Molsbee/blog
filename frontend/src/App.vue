@@ -9,9 +9,9 @@
       </v-btn>
       <v-menu left bottom>
         <template v-slot:activator="{ on }">
-          <b-btn icon v-on="on">
+          <v-btn icon v-on="on">
             <v-icon>mdi-dots-vertical</v-icon>
-          </b-btn>
+          </v-btn>
         </template>
         <v-list>
           <v-list-item to="/">

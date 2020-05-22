@@ -3,6 +3,10 @@
         <div v-if="loading">Loading...</div>
         <div v-else>
             <div class="overline mb-4">{{ article.createdDate }}</div>
+            <h2>{{ article.title }}</h2>
+            <blockquote>
+                {{ article.content }}
+            </blockquote>
         </div>
     </div>
 </template>
