@@ -1,4 +1,3 @@
-import '@babel/polyfill'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import vuetify from './plugins/vuetify';
@@ -14,12 +13,12 @@ const routes = [
     component: () => import('./views/Home.vue')
   },
   {
-    path: '/about',
+    path: '/blog/about',
     name: 'About',
     component: () => import('./views/About.vue')
   },
   {
-    path: '/article/:id',
+    path: '/blog/article/:id',
     name: 'Article',
     component: () => import('./views/Article.vue')
   }

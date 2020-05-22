@@ -33,13 +33,6 @@ func main() {
 
 	router := gin.Default()
 
-	// Serve Static Content
-	router.StaticFS("/css", http.Dir("./frontend/dist/css"))
-	router.StaticFS("/img", http.Dir("./frontend/dist/img"))
-	router.StaticFS("/js", http.Dir("./frontend/dist/js"))
-	router.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
-	router.StaticFile("/", "./frontend/dist/index.html")
-
 	// Setup CORS Handler and Authorization Handler
 	api := router.Group("/api", corsHandler)
 	articles := api.Group("/articles")
@@ -49,6 +42,16 @@ func main() {
 		articles.GET("/:articleID", articleController.GetArticle)
 		articles.PUT("/:articleID", articleController.UpdateArticle)
 	}
+
+	// Serve Static Content
+	router.StaticFS("/css", http.Dir("./frontend/dist/css"))
+	router.StaticFS("/img", http.Dir("./frontend/dist/img"))
+	router.StaticFS("/js", http.Dir("./frontend/dist/js"))
+	router.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
+	router.StaticFile("/", "./frontend/dist/index.html")
+	router.GET("/blog/*subpage", func(c *gin.Context) {
+		c.File("./frontend/dist/index.html")
+	})
 
 	// serve web pages
 	router.Run(":8080")

@@ -19,9 +19,8 @@
             }
         },
         mounted() {
-            console.log(this.$route.params.id);
             axios
-                .get('/api/articles/' + this.$route.params.id)
+                .get('http://localhost:8080/api/articles/' + this.$route.params.id)
                 .then(response => {
                     this.article = response.data
                 })
@@ -30,6 +29,12 @@
                     this.errored = true
                 })
                 .finally(() => this.loading = false)
+        },
+        watch: {
+            $route(to, from) {
+                console.log(to)
+                console.log(from)
+            }
         }
     }
 </script>

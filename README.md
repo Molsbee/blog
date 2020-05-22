@@ -22,6 +22,7 @@ migrate create -ext sql -dir ./database-migrations -seq create_articles_table
 General Notes 
 Running Go Locally
 ```shell script
+yarn serve --port 8090
 yarn --cwd ./frontend/ build && go run main.go
 ```
 

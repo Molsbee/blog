@@ -17,7 +17,7 @@
           <v-list-item to="/">
             <v-list-item-title>Home</v-list-item-title>
           </v-list-item>
-          <v-list-item to="/about">
+          <v-list-item to="/blog/about">
             <v-list-item-title>About</v-list-item-title>
           </v-list-item>
         </v-list>
