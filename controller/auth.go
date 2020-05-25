@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"github.com/Molsbee/blog/repository"
 	"github.com/Molsbee/blog/service"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -11,12 +10,12 @@ import (
 )
 
 type authController struct {
-	repo repository.ServiceUserRepository
+	auth service.AuthService
 }
 
-func NewAuthController(userRepository repository.ServiceUserRepository) *authController {
+func NewAuthController(authService service.AuthService) *authController {
 	return &authController{
-		repo: userRepository,
+		auth: authService,
 	}
 }
 
@@ -28,10 +27,9 @@ func (auth *authController) Login(c *gin.Context) {
 		return
 	}
 
-	user := auth.repo.FindByUsernameAndPassword(username, password)
-	if user == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication failed"})
-		return
+	user, err := auth.auth.Authenticate(username, password)
+	if err != nil {
+		c.JSON(err.StatusCode(), err.Details())
 	}
 
 	if err := service.SaveSessionData(*user, c); err != nil {

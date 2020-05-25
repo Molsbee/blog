@@ -7,7 +7,7 @@ import (
 )
 
 type ServiceUserRepository interface {
-	FindByUsernameAndPassword(username, password string) *model.ServiceUser
+	FindByUsername(username string) *model.ServiceUser
 }
 
 type serviceUserRepository struct {
@@ -20,9 +20,9 @@ func NewServiceUserRepository(db *gorm.DB) ServiceUserRepository {
 	}
 }
 
-func (ur *serviceUserRepository) FindByUsernameAndPassword(username, password string) *model.ServiceUser {
+func (ur *serviceUserRepository) FindByUsername(username string) *model.ServiceUser {
 	serviceUser := model.ServiceUser{}
-	err := ur.db.Where("username = ?", username).Where("password = ?", password).Find(&serviceUser).Error
+	err := ur.db.Where("username = ?", username).Find(&serviceUser).Error
 	if err != nil {
 		if !gorm.IsRecordNotFoundError(err) {
 			log.Printf("failed to query service user table - %s\n", err)

@@ -2,31 +2,36 @@ package service
 
 import (
 	"github.com/Molsbee/blog/model"
-	"github.com/gin-gonic/contrib/sessions"
-	"github.com/gin-gonic/gin"
+	"github.com/Molsbee/blog/repository"
+	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
-func HasSession(c *gin.Context) bool {
-	session := sessions.Default(c)
-	id := session.Get("user_id")
-	if id == nil {
-		return false
+type AuthService interface {
+	Authenticate(username, password string) (*model.ServiceUser, model.ApplicationError)
+}
+
+type authService struct {
+	repo repository.ServiceUserRepository
+}
+
+func NewAuthService(db *gorm.DB) AuthService {
+	return &authService{
+		repo: repository.NewServiceUserRepository(db),
+	}
+}
+
+func (a *authService) Authenticate(username, password string) (*model.ServiceUser, model.ApplicationError) {
+	user := a.repo.FindByUsername(username)
+	if user == nil || bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
+		return nil, model.ApiError{
+			S: http.StatusUnauthorized,
+			D: map[string]interface{}{
+				"error": "authentication failed",
+			},
+		}
 	}
 
-	return true
-}
-
-func SaveSessionData(user model.ServiceUser, c *gin.Context) error {
-	session := sessions.Default(c)
-	session.Set("user_id", user.ID)
-	session.Set("username", user.Username)
-	session.Set("first_name", user.FirstName)
-	session.Set("last_name", user.LastName)
-	return session.Save()
-}
-
-func DeleteSessionData(c *gin.Context) error {
-	session := sessions.Default(c)
-	session.Clear()
-	return session.Save()
+	return user, nil
 }

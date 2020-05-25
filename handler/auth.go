@@ -1,22 +1,22 @@
 package handler
 
 import (
-	"github.com/Molsbee/blog/repository"
 	"github.com/Molsbee/blog/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func GetBasicAuthHandler(repository repository.ServiceUserRepository) func(c *gin.Context) {
+func GetBasicAuthHandler(authService service.AuthService) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		username, password, ok := c.Request.BasicAuth()
 		if !ok {
 			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
-		user := repository.FindByUsernameAndPassword(username, password)
-		if user == nil {
-			c.AbortWithStatus(http.StatusForbidden)
+
+		_, err := authService.Authenticate(username, password)
+		if err != nil {
+			c.AbortWithStatusJSON(err.StatusCode(), err.Details())
 			return
 		}
 

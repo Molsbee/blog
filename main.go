@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/Molsbee/blog/controller"
 	"github.com/Molsbee/blog/handler"
-	"github.com/Molsbee/blog/repository"
 	"github.com/Molsbee/blog/service"
 	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -31,8 +30,8 @@ func main() {
 	defer db.Close()
 	runDatabaseMigration(db.DB())
 
-	serviceUserRepo := repository.NewServiceUserRepository(db)
-	authController := controller.NewAuthController(serviceUserRepo)
+	authService := service.NewAuthService(db)
+	authController := controller.NewAuthController(authService)
 	articleService := service.NewArticleService(db)
 	articleController := controller.NewArticleController(articleService)
 
@@ -57,7 +56,7 @@ func main() {
 	})
 
 	// REST API with CORS Handler and Basic Authentication
-	basicAuthHandler := handler.GetBasicAuthHandler(serviceUserRepo)
+	basicAuthHandler := handler.GetBasicAuthHandler(authService)
 	api := router.Group("/api", handler.CORS)
 	articles := api.Group("/articles")
 	{
