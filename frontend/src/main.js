@@ -23,12 +23,12 @@ const routes = [
     component: () => import('./views/About.vue')
   },
   {
-    path: '/admin/write',
+    path: '/admin/create',
     name: 'Write',
     component: () => import('./views/WriteBlog.vue')
   },
   {
-    path: '/admin//edit',
+    path: '/admin/edit',
     name: 'Edit',
     component: () => import('./views/EditBlog.vue')
   },
