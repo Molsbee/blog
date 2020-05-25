@@ -57,8 +57,13 @@
                 formData.set("password", this.password)
                 axios
                     .post("/login", formData)
-                    .then(() => {
-                        console.log("here")
+                    .then(response => {
+                        // Store data in local storage
+                        localStorage.setItem("username", response.data.username)
+                        localStorage.setItem("firstName", response.data.firstName)
+                        localStorage.setItem("lastName", response.data.lastName)
+                        // Emit Login Event and Redirect
+                        this.$root.$emit('LoginEvent', response.data.username)
                         this.$router.push('/')
                     })
                     .catch(error => {

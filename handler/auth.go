@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func GetApiAuthHandler(repository repository.ServiceUserRepository) func(c *gin.Context) {
+func GetBasicAuthHandler(repository repository.ServiceUserRepository) func(c *gin.Context) {
 	return func(c *gin.Context) {
 		username, password, ok := c.Request.BasicAuth()
 		if !ok {

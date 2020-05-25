@@ -39,7 +39,11 @@ func (auth *authController) Login(c *gin.Context) {
 		return
 	}
 
-	c.Status(200)
+	c.JSON(200, gin.H{
+		"username":  user.Username,
+		"firstName": user.FirstName,
+		"lastName":  user.LastName,
+	})
 }
 
 func (auth *authController) Logout(c *gin.Context) {
@@ -51,5 +55,5 @@ func (auth *authController) Logout(c *gin.Context) {
 		}
 	}
 
-	c.Status(200)
+	c.Status(http.StatusOK)
 }

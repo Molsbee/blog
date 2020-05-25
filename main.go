@@ -33,6 +33,8 @@ func main() {
 
 	serviceUserRepo := repository.NewServiceUserRepository(db)
 	authController := controller.NewAuthController(serviceUserRepo)
+	articleService := service.NewArticleService(db)
+	articleController := controller.NewArticleController(articleService)
 
 	router := gin.Default()
 	// Setup Cookie Session
@@ -50,17 +52,15 @@ func main() {
 		c.File("./frontend/dist/index.html")
 	})
 
-	articleService := service.NewArticleService(db)
-	articleController := controller.NewArticleController(articleService)
-	apiAuthHandler := handler.GetApiAuthHandler(serviceUserRepo)
-	// Setup CORS Handler and Authorization Handler
+	// REST API with CORS Handler and Basic Authentication
+	basicAuthHandler := handler.GetBasicAuthHandler(serviceUserRepo)
 	api := router.Group("/api", handler.CORS)
 	articles := api.Group("/articles")
 	{
 		articles.GET("", articleController.ListArticles)
 		articles.GET("/:articleID", articleController.GetArticle)
-		articles.POST("", apiAuthHandler, articleController.Create)
-		articles.PUT("/:articleID", apiAuthHandler, articleController.UpdateArticle)
+		articles.POST("", basicAuthHandler, articleController.Create)
+		articles.PUT("/:articleID", basicAuthHandler, articleController.UpdateArticle)
 	}
 
 	// serve web pages
