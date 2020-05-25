@@ -48,6 +48,9 @@ func main() {
 	router.StaticFS("/js", http.Dir("./frontend/dist/js"))
 	router.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
 	router.StaticFile("/", "./frontend/dist/index.html")
+	router.GET("/admin/*subpage", handler.SessionRequiredHandler, func(c *gin.Context) {
+		c.File("./frontend/dist/index.html")
+	})
 	router.GET("/blog/*subpage", func(c *gin.Context) {
 		c.File("./frontend/dist/index.html")
 	})

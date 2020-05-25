@@ -40,9 +40,7 @@ func (auth *authController) Login(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"username":  user.Username,
-		"firstName": user.FirstName,
-		"lastName":  user.LastName,
+		"username": user.Username,
 	})
 }
 
