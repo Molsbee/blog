@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/Molsbee/blog/repository"
 	"github.com/Molsbee/blog/service"
+	"github.com/gin-gonic/contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -42,6 +43,18 @@ func (auth *authController) Login(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"username": user.Username,
 	})
+}
+
+func (auth *authController) Session(c *gin.Context) {
+	if service.HasSession(c) {
+		session := sessions.Default(c)
+		c.JSON(200, gin.H{
+			"username": session.Get("username"),
+		})
+		return
+	}
+
+	c.Status(http.StatusNotFound)
 }
 
 func (auth *authController) Logout(c *gin.Context) {

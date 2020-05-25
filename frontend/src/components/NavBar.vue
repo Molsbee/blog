@@ -22,6 +22,13 @@
                 <v-list-item v-show="!isAuthenticated" to="/blog/login">
                     <v-list-item-title>Login</v-list-item-title>
                 </v-list-item>
+                <!-- Admin Links -->
+                <v-list-item v-show="isAuthenticated" to="/admin/create">
+                    <v-list-item-title>Write Blog</v-list-item-title>
+                </v-list-item>
+                <v-list-item v-show="isAuthenticated" to="/admin/edit">
+                    <v-list-item-title>Edit Blog</v-list-item-title>
+                </v-list-item>
                 <v-list-item v-show="isAuthenticated" @click="logout">
                     <v-list-item-title>Logout</v-list-item-title>
                 </v-list-item>
@@ -42,8 +49,12 @@
             }
         },
         mounted() {
-            this.isAuthenticated = localStorage.getItem("username") != null;
-            this.username = localStorage.getItem("username")
+            axios.get('/session')
+                .then(response => {
+                    this.username = response.data.username
+                    this.isAuthenticated = true
+                })
+
             this.$root.$on('LoginEvent', (text) => {
                 this.isAuthenticated = true
                 this.username = text
@@ -53,9 +64,9 @@
             logout: function() {
                 axios.get("/logout")
                     .then(() => {
-                        localStorage.clear()
                         this.isAuthenticated = false
                         this.username = null
+                        this.$router.push('/')
                     })
                     .catch(error => {
                         console.log(error)

@@ -40,6 +40,7 @@ func main() {
 	// Setup Cookie Session
 	router.Use(sessions.Sessions("user_session", sessions.NewCookieStore([]byte("secret"))))
 	router.POST("/login", authController.Login)
+	router.GET("/session", authController.Session)
 	router.GET("/logout", authController.Logout)
 
 	// Serve UI Static Content
