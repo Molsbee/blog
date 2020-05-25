@@ -13,6 +13,7 @@
 
 <script>
     import axios from 'axios'
+
     export default {
         name: "Article",
         data() {
@@ -33,12 +34,6 @@
                     this.errored = true
                 })
                 .finally(() => this.loading = false)
-        },
-        watch: {
-            $route(to, from) {
-                console.log(to)
-                console.log(from)
-            }
         }
     }
 </script>
