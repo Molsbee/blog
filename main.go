@@ -19,11 +19,18 @@ import (
 )
 
 func main() {
-	dbHostname := getEnvOrDefault("BLOG_DATABASE_HOSTNAME", "localhost")
-	dbUsername := getEnvOrDefault("BLOG_DATABASE_USERNAME", "blog")
-	dbPassword := getEnvOrDefault("BLOG_DATABASE_PASSWORD", "blog-development")
-	databaseURL := getEnvOrDefault("DATABASE_URL", fmt.Sprintf("postgres://%s:%s@%s:5432/blog?sslmode=disable", dbUsername, dbPassword, dbHostname))
+	log.Println("starting application by parsing environment variables")
+	databaseURL := getEnvOrDefault("DATABASE_URL", "")
+	if len(databaseURL) != 0 {
+		databaseURL = fmt.Sprintf("%s?sslmode=require", databaseURL)
+	} else {
+		dbHostname := getEnvOrDefault("BLOG_DATABASE_HOSTNAME", "localhost")
+		dbUsername := getEnvOrDefault("BLOG_DATABASE_USERNAME", "blog")
+		dbPassword := getEnvOrDefault("BLOG_DATABASE_PASSWORD", "blog-development")
+		databaseURL = fmt.Sprintf("postgres://%s:%s@%s:5432/blog?sslmode=disable", dbUsername, dbPassword, dbHostname)
+	}
 
+	log.Printf("setting up database connection %s\n", databaseURL)
 	db, err := gorm.Open("postgres", databaseURL)
 	if err != nil {
 		log.Panicf("failed to open connection to database - %s", err)
@@ -31,11 +38,13 @@ func main() {
 	defer db.Close()
 	runDatabaseMigration(db.DB())
 
+	log.Println("setting up services and controllers")
 	authService := service.NewAuthService(db)
 	authController := controller.NewAuthController(authService)
 	articleService := service.NewArticleService(db)
 	articleController := controller.NewArticleController(articleService)
 
+	log.Println("setting up router with paths")
 	router := gin.Default()
 	// Setup Cookie Session
 	router.Use(sessions.Sessions("user_session", sessions.NewCookieStore([]byte("secret"))))
@@ -68,13 +77,15 @@ func main() {
 	}
 
 	// serve web pages
-	port := getEnvOrDefault("PORT", "8080")
-	router.Run(fmt.Sprintf(":%s", port))
+	port := fmt.Sprintf(":%s", getEnvOrDefault("PORT", "8080"))
+	log.Printf("starting to listen %s\n", port)
+	router.Run(port)
 }
 
 func getEnvOrDefault(environmentVariable string, defaultValue string) string {
 	variable := os.Getenv(environmentVariable)
 	if len(variable) == 0 {
+		log.Printf("unable to find environment variable %s defaulting value to %s\n", environmentVariable, defaultValue)
 		return defaultValue
 	}
 
@@ -87,12 +98,14 @@ func runDatabaseMigration(db *sql.DB) {
 		log.Panic(err)
 	}
 
+	log.Println("setting up new database migration with specified files")
 	m, err := migrate.NewWithDatabaseInstance("file://database-migrations", "postgres", driver)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed to setup the new database migrations", err)
 	}
 
+	log.Println("attempting to run database migrations")
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatal(err)
+		log.Fatal("failed to run database migration scripts", err)
 	}
 }

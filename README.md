@@ -40,3 +40,11 @@ vue add vuetify
 yarn add axios
 yarn --cwd ./frontend/ build
 ```
+
+
+Heroku
+```shell script
+heroku container:login
+heroku container:push web -a william-molsbee
+heroku container:release web -a william-molsbee 
+```

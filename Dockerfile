@@ -20,9 +20,11 @@ COPY . .
 RUN yarn --cwd ./frontend/ build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o blog
 
-FROM scratch
-COPY --from=build-env /app/frontend/dist /frontend/dist
-COPY --from=build-env /app/database-migrations /database-migrations
-COPY --from=build-env /app/blog /blog
+FROM alpine:latest
+COPY --from=build-env /app/frontend/dist ./frontend/dist
+COPY --from=build-env /app/database-migrations ./database-migrations
+COPY --from=build-env /app/blog ./blog
+
+RUN chmod +x ./blog
 EXPOSE 8080
-ENTRYPOINT ["/blog"]
+CMD ["./blog"]
