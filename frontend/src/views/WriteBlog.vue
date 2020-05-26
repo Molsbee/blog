@@ -4,7 +4,7 @@
             <h3>Create a new blog page</h3>
         </v-row>
         <v-row>
-            <v-text-field label="Title"></v-text-field>
+            <v-text-field label="Title" v-bind="blog_title"></v-text-field>
         </v-row>
         <v-row>
             <v-tabs>
@@ -38,6 +38,7 @@
         name: 'WriteBlog',
         data() {
             return {
+                blog_title: "",
                 blog_markdown: "",
                 blog_html: "",
                 show_html: false
