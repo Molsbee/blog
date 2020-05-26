@@ -22,8 +22,9 @@ func main() {
 	dbHostname := getEnvOrDefault("BLOG_DATABASE_HOSTNAME", "localhost")
 	dbUsername := getEnvOrDefault("BLOG_DATABASE_USERNAME", "blog")
 	dbPassword := getEnvOrDefault("BLOG_DATABASE_PASSWORD", "blog-development")
+	databaseURL := getEnvOrDefault("DATABASE_URL", fmt.Sprintf("postgres://%s:%s@%s:5432/blog?sslmode=disable", dbUsername, dbPassword, dbHostname))
 
-	db, err := gorm.Open("postgres", fmt.Sprintf("postgres://%s:%s@%s:5432/blog?sslmode=disable", dbUsername, dbPassword, dbHostname))
+	db, err := gorm.Open("postgres", databaseURL)
 	if err != nil {
 		log.Panicf("failed to open connection to database - %s", err)
 	}
