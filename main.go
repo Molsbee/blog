@@ -68,7 +68,8 @@ func main() {
 	}
 
 	// serve web pages
-	router.Run(":8080")
+	port := getEnvOrDefault("PORT", "8080")
+	router.Run(fmt.Sprintf(":%s", port))
 }
 
 func getEnvOrDefault(environmentVariable string, defaultValue string) string {
