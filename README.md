@@ -35,7 +35,7 @@ migrate create -ext sql -dir ./database-migrations -seq create_articles_table
 ### Deploying application with Docker Compose
 ```shell script
 docker-compose build
-docker-compose up
+docker-compose up -d
 docker-compose down
 ```
 
@@ -65,13 +65,3 @@ heroku container:login
 heroku container:push web -a william-molsbee
 heroku container:release web -a william-molsbee 
 ```
-
-Docker
-```shell script
-docker build -t blog .
-docker run --name blog -d blog
-```
-
-
-Cleanup docker-compose
-Create Make File to automate some things and stuff like heroku deployment.
