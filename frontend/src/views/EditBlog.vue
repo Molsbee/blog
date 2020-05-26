@@ -1,5 +1,5 @@
 <template>
-    <div class="create">
+    <div class="edit">
         <v-row>
             <v-select>Select Blog</v-select>
         </v-row>
@@ -31,6 +31,9 @@
 </template>
 
 <script>
+    import showdown from 'showdown'
+
+    let converter = new showdown.Converter()
     export default {
         name: 'EditBlog',
         data() {
