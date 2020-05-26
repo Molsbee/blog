@@ -20,11 +20,12 @@ COPY . .
 RUN yarn --cwd ./frontend/ build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o blog
 
-FROM alpine:latest
+FROM debian:latest
 COPY --from=build-env /app/frontend/dist ./frontend/dist
 COPY --from=build-env /app/database-migrations ./database-migrations
 COPY --from=build-env /app/blog ./blog
+COPY --from=build-env /app/wait-for-it.sh ./wait-for-it.sh
 
-RUN chmod +x ./blog
+RUN chmod +x ./blog ./wait-for-it.sh
 EXPOSE 8080
 CMD ["./blog"]

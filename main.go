@@ -22,12 +22,10 @@ func main() {
 	log.Println("starting application by parsing environment variables")
 	databaseURL := getEnvOrDefault("DATABASE_URL", "")
 	if len(databaseURL) != 0 {
+		// This is for used with Heroku which requires SSL for accessing Postgres
 		databaseURL = fmt.Sprintf("%s?sslmode=require", databaseURL)
 	} else {
-		dbHostname := getEnvOrDefault("BLOG_DATABASE_HOSTNAME", "localhost")
-		dbUsername := getEnvOrDefault("BLOG_DATABASE_USERNAME", "blog")
-		dbPassword := getEnvOrDefault("BLOG_DATABASE_PASSWORD", "blog-development")
-		databaseURL = fmt.Sprintf("postgres://%s:%s@%s:5432/blog?sslmode=disable", dbUsername, dbPassword, dbHostname)
+		databaseURL = getEnvOrDefault("BLOG_DB_URL", "postgres://blogger:password@localhost:5432/blog?sslmode=disable")
 	}
 
 	log.Printf("setting up database connection %s\n", databaseURL)
@@ -45,7 +43,9 @@ func main() {
 	articleController := controller.NewArticleController(articleService)
 
 	log.Println("setting up router with paths")
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+
 	// Setup Cookie Session
 	router.Use(sessions.Sessions("user_session", sessions.NewCookieStore([]byte("secret"))))
 	router.POST("/login", authController.Login)
@@ -85,7 +85,6 @@ func main() {
 func getEnvOrDefault(environmentVariable string, defaultValue string) string {
 	variable := os.Getenv(environmentVariable)
 	if len(variable) == 0 {
-		log.Printf("unable to find environment variable %s defaulting value to %s\n", environmentVariable, defaultValue)
 		return defaultValue
 	}
 

@@ -8,10 +8,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      BLOG_DATABASE_HOSTNAME: blog_postgres
-      BLOG_DATABASE_USERNAME: ${DB_USERNAME}
-      BLOG_DATABASE_PASSWORD: ${DB_PASSWORD}
-    command: ["./wait-for-it.sh", "blog_postgres:5432", "--", "sh", "/go/bin/blog"]
+      BLOG_DB_URL: postgres://${DB_USERNAME}:${DB_PASSWORD}@blog_postgres:5432/${DB_NAME}?sslmode=disable
+    command: ["./wait-for-it.sh", "blog_postgres:5432", "--", "./blog"]
     restart: always
   postgres:
     container_name: blog_postgres
@@ -19,6 +17,6 @@ services:
     environment:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: blog
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
