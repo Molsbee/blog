@@ -63,5 +63,5 @@ Heroku Commands
 ```shell script
 heroku container:login
 heroku container:push web -a william-molsbee
-heroku container:release web -a william-molsbee 
+heroku container:release web -a william-molsbee
 ```
