@@ -74,7 +74,7 @@ export default {
       }
       axios
           .post("/api/articles", request)
-          .then(response => { this.$router.push('/') })
+          .then(_ => { this.$router.push('/') })
           .catch(error => {
             console.log(error)
             this.errored = true
