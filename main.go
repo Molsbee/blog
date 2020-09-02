@@ -34,7 +34,7 @@ func main() {
 		log.Panicf("failed to open connection to database - %s", err)
 	}
 	defer db.Close()
-	runDatabaseMigration(db.DB())
+	go runDatabaseMigration(db.DB())
 
 	log.Println("setting up services and controllers")
 	authService := service.NewAuthService(db)
