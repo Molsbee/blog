@@ -4,12 +4,12 @@
       <h3>Create a new blog page</h3>
     </v-row>
     <v-row>
-      <v-text-field label="Title" v-bind="title"></v-text-field>
+      <v-text-field label="Title" v-model="title"></v-text-field>
     </v-row>
     <v-row>
-      <v-text-field label="Author" v-bind="author"></v-text-field>
+      <v-text-field label="Author" v-model="author"></v-text-field>
       <v-spacer></v-spacer>
-      <v-checkbox label="Publish" v-bind="publish"></v-checkbox>
+      <v-checkbox label="Publish" v-model="publish"></v-checkbox>
     </v-row>
     <v-row>
       <v-tabs>
@@ -70,7 +70,9 @@ export default {
             author: this.author,
             published: this.publish
           })
-          .then(() => { this.$router.push('/') })
+          .then(() => {
+            this.$router.push('/')
+          })
           .catch(error => {
             console.log(error)
             this.errored = true

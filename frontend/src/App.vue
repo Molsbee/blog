@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <NavBar />
+    <NavBar/>
     <v-content>
       <v-container>
         <router-view></router-view>
@@ -13,12 +13,12 @@
 </template>
 
 <script>
-  import NavBar from './components/NavBar.vue'
+import NavBar from './components/NavBar.vue'
 
-  export default {
-    name: 'App',
-    components: {
-        NavBar
-    }
+export default {
+  name: 'App',
+  components: {
+    NavBar
   }
+}
 </script>
