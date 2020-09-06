@@ -22,7 +22,7 @@ func main() {
 	log.Println("starting application by parsing environment variables")
 	databaseURL := getEnvOrDefault("DATABASE_URL", "")
 	if len(databaseURL) != 0 {
-		// This is for used with Heroku which requires SSL for accessing Postgres
+		// This is used with Heroku which requires SSL for accessing Postgres
 		databaseURL = fmt.Sprintf("%s?sslmode=require", databaseURL)
 	} else {
 		databaseURL = getEnvOrDefault("BLOG_DB_URL", "postgres://blogger:password@localhost:5432/blog?sslmode=disable")
@@ -53,28 +53,32 @@ func main() {
 	router.GET("/logout", authController.Logout)
 
 	// Serve UI Static Content
-	router.StaticFS("/css", http.Dir("./frontend/dist/css"))
-	router.StaticFS("/img", http.Dir("./frontend/dist/img"))
-	router.StaticFS("/js", http.Dir("./frontend/dist/js"))
-	router.StaticFile("/favicon.ico", "./frontend/dist/favicon.ico")
-	router.StaticFile("/", "./frontend/dist/index.html")
-	router.GET("/admin/*subpage", handler.SessionRequiredHandler, func(c *gin.Context) {
-		c.File("./frontend/dist/index.html")
-	})
-	router.GET("/blog/*subpage", func(c *gin.Context) {
-		c.File("./frontend/dist/index.html")
-	})
+	router.
+		StaticFS("/css", http.Dir("./frontend/dist/css")).
+		StaticFS("/img", http.Dir("./frontend/dist/img")).
+		StaticFS("/js", http.Dir("./frontend/dist/js")).
+		StaticFile("/favicon.ico", "./frontend/dist/favicon.ico").
+		StaticFile("/", "./frontend/dist/index.html").
+		GET("/admin/*subpage", handler.SessionRequiredHandler, func(c *gin.Context) {
+			c.File("./frontend/dist/index.html")
+		}).
+		GET("/blog/*subpage", func(c *gin.Context) {
+			c.File("./frontend/dist/index.html")
+		})
+
+	// Session Based Endpoint for creating and updating articles
+	router.
+		POST("/articles", handler.SessionRequiredHandler, articleController.Create).
+		PUT("/articles/:articleID", handler.SessionRequiredHandler, articleController.UpdateArticle)
 
 	// REST API with CORS Handler and Basic Authentication
 	basicAuthHandler := handler.GetBasicAuthHandler(authService)
-	api := router.Group("/api", handler.CORS)
-	articles := api.Group("/articles")
-	{
-		articles.GET("", articleController.ListArticles)
-		articles.GET("/:articleID", articleController.GetArticle)
-		articles.POST("", basicAuthHandler, articleController.Create)
-		articles.PUT("/:articleID", basicAuthHandler, articleController.UpdateArticle)
-	}
+	router.Group("/api", handler.CORS).
+		Group("/articles").
+		GET("", articleController.ListArticles).
+		GET("/:articleID", articleController.GetArticle).
+		POST("", basicAuthHandler, articleController.Create).
+		PUT("/:articleID", basicAuthHandler, articleController.UpdateArticle)
 
 	// serve web pages
 	port := fmt.Sprintf(":%s", getEnvOrDefault("PORT", "8080"))

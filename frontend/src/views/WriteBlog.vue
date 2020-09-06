@@ -7,12 +7,9 @@
       <v-text-field label="Title" v-bind="title"></v-text-field>
     </v-row>
     <v-row>
-      <v-col>
-        <v-text-field label="Author" v-bind="author"></v-text-field>
-      </v-col>
-      <v-col>
-        <v-checkbox label="Publish" v-bind="publish"></v-checkbox>
-      </v-col>
+      <v-text-field label="Author" v-bind="author"></v-text-field>
+      <v-spacer></v-spacer>
+      <v-checkbox label="Publish" v-bind="publish"></v-checkbox>
     </v-row>
     <v-row>
       <v-tabs>
@@ -73,7 +70,7 @@ export default {
         Published: this.publish
       }
       axios
-          .post("/api/articles", request)
+          .post("/articles", request)
           .then(() => { this.$router.push('/') })
           .catch(error => {
             console.log(error)
