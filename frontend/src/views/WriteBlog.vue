@@ -63,14 +63,13 @@ export default {
       this.show_html = true
     },
     submit: function () {
-      let request = {
-        Title: this.title,
-        Content: this.blog_markdown,
-        Author: this.author,
-        Published: this.publish
-      }
       axios
-          .post("/articles", request)
+          .post("/articles", {
+            title: this.title,
+            content: this.blog_markdown,
+            author: this.author,
+            published: this.publish
+          })
           .then(() => { this.$router.push('/') })
           .catch(error => {
             console.log(error)
